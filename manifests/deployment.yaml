@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aks-ratingsapp-demo
+  labels:
+    app: aks-ratingsapp-demo
+    kubernetes.azure.com/generator: devhub
+  namespace: ratingsapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aks-ratingsapp-demo
+  template:
+    metadata:
+      labels:
+        app: aks-ratingsapp-demo
+    spec:
+      containers:
+        - name: aks-ratingsapp-demo
+          image: containerregistry9282.azurecr.io/ratingsapp-autoimage:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
