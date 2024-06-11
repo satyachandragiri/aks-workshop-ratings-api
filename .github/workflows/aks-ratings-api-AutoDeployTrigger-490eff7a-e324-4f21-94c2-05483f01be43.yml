@@ -1,0 +1,47 @@
+name: Trigger auto deployment for aks-ratings-api
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ master ]
+    paths:
+    - '**'
+    - '.github/workflows/aks-ratings-api-AutoDeployTrigger-490eff7a-e324-4f21-94c2-05483f01be43.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AKSRATINGSAPI_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AKSRATINGSAPI_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AKSRATINGSAPI_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: containerregistry9282.azurecr.io
+          registryUsername: ${{ secrets.AKSRATINGSAPI_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.AKSRATINGSAPI_REGISTRY_PASSWORD }}
+          containerAppName: aks-ratings-api
+          resourceGroup: aca-imsource-rg
+          imageToBuild: containerregistry9282.azurecr.io/aks-ratings-api:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
