@@ -1,0 +1,26 @@
+name: Upload to Azure Storage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload files to Azure Storage
+        run: |
+          az storage blob upload-batch -d 'json' -s 'data'
+        env:
+          AZURE_STORAGE_ACCOUNT: wthichf4tbzisrmm
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
